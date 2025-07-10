@@ -103,36 +103,30 @@ class CustomerController extends Controller
      * @return \Illuminate\Http\Response
      */
 
- /**
- * @OA\Get(
- *     path="/api/customers/{id}",
- *     summary="Obtener cliente por ID",
- *     tags={"Customers"},
- *     @OA\Parameter(
- *         name="id",
- *         in="path",
- *         description="ID del cliente",
- *         required=true,
- *         @OA\Schema(type="integer")
- *     ),
- *     @OA\Response(
- *         response=200,
- *         description="Cliente encontrado"
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Cliente no encontrado"
- *     )
- * )
- */
+    /**
+     * @OA\Get(
+     *     path="/api/customers/{id}",
+     *     summary="Obtener cliente por ID",
+     *     tags={"Customers"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="ID del cliente",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Cliente encontrado"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Cliente no encontrado"
+     *     )
+     * )
+     */
 
-    public function show(Customer $customer)
-    {
-        return response()->json([
-            'status' => true,
-            'data' => $customer
-        ]);
-    }
+
 
     /**
      * Update the specified resource in storage.
@@ -182,7 +176,7 @@ class CustomerController extends Controller
      *     )
      * )
      */
-    public function update(Request $request, Customer $customer)
+    public function update(Request $request, int $id)
     {
         $rules = [
             'name' => 'required|string|min:1',
@@ -198,7 +192,15 @@ class CustomerController extends Controller
             ], 400);
         }
 
-        $customer->update($request->input());
+        $customer = Customer::find($id);
+        if (!$customer = Customer::find($id)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'El cliente no existe'
+            ], 400);
+        }
+        $customer->fill($request->only(['name', 'email', 'phone'] ));
+        $customer->save();
         return response()->json([
             'status' => true,
             'message' => 'Actualizado con éxito'

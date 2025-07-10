@@ -720,6 +720,34 @@
                     }
                 }
             }
+        },
+        "/api/orders/total": {
+            "get": {
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Obtener el total de órdenes",
+                "description": "Devuelve el número total de órdenes registradas.",
+                "operationId": "1d8dfeef8b7c06557e2cac9e8efea42f",
+                "responses": {
+                    "200": {
+                        "description": "Total de órdenes",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "total": {
+                                            "type": "integer",
+                                            "example": 100
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "tags": [

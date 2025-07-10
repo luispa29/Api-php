@@ -178,7 +178,13 @@ class OrderController extends Controller
         ], 201);
     }
 
-
+     public function show(Order $order)
+    {
+        return response()->json([
+            'status' => true,
+            'data' => $order
+        ]);
+    }
     /**
      * Update the specified resource in storage.
      *
@@ -406,4 +412,29 @@ class OrderController extends Controller
             'message' => 'Actualizado con éxito'
         ], 200);
     }
+
+    /**
+     * Obtener el total de órdenes.
+     *
+     * @OA\Get(
+     *     path="/api/orders/total",
+     *     summary="Obtener el total de órdenes",
+     *     description="Devuelve el número total de órdenes registradas.",
+     *     tags={"Orders"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Total de órdenes",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="total", type="integer", example=100)
+     *         )
+     *     )
+     * )
+     */
+    public function getTotalOrders()
+    {
+        $total = Order::count();
+        return response()->json(['total' =>  $total], 200);
+    }
+
+
 }
