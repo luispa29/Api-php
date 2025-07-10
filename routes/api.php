@@ -29,9 +29,13 @@ Route::delete('/customers/{id}', [CustomerController::class, 'destroy']);
 
 Route::get('/orders/', [OrderController::class, 'index']);
 Route::get('/orders/getTotalOrders', [OrderController::class, 'getTotalOrders']);
+Route::get('/orders/statusSummary', [OrderController::class, 'statusSummary']);
+Route::get('/orders/groupedCount', [OrderController::class, 'groupedCount']);
+
 Route::post('/orders/', [OrderController::class, 'store']);
 Route::put('/orders/{id}', [OrderController::class, 'update']);
-Route::delete('/orders/{id}', [OrderController::class, 'destroy']);
 Route::put('/orders/updateStatus/{id}', [OrderController::class, 'updateStatus']);
+
+Route::delete('/orders/{id}', [OrderController::class, 'destroy']);
 
 

@@ -64,95 +64,6 @@
                 }
             }
         },
-        "/api/customers/{id}": {
-            "get": {
-                "tags": [
-                    "Customers"
-                ],
-                "summary": "Obtener cliente por ID",
-                "operationId": "d51ce35bfe185b82c242dd4443ffba54",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "ID del cliente",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Cliente encontrado"
-                    },
-                    "404": {
-                        "description": "Cliente no encontrado"
-                    }
-                }
-            },
-            "delete": {
-                "tags": [
-                    "Customers"
-                ],
-                "summary": "Eliminar un cliente",
-                "description": "Elimina un cliente existente por su ID.",
-                "operationId": "destroyCustomer",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "ID del cliente a eliminar",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Eliminado con éxito",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "boolean",
-                                            "example": true
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Eliminado con éxito"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "El cliente no existe",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "boolean",
-                                            "example": false
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "El cliente no existe"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/customers/{customer}": {
             "put": {
                 "tags": [
@@ -238,6 +149,69 @@
                                             "items": {
                                                 "type": "string"
                                             }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/customers/{id}": {
+            "delete": {
+                "tags": [
+                    "Customers"
+                ],
+                "summary": "Eliminar un cliente",
+                "description": "Elimina un cliente existente por su ID.",
+                "operationId": "destroyCustomer",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID del cliente a eliminar",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Eliminado con éxito",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Eliminado con éxito"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "El cliente no existe",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "El cliente no existe"
                                         }
                                     },
                                     "type": "object"
@@ -721,14 +695,14 @@
                 }
             }
         },
-        "/api/orders/total": {
+        "/api/orders/getTotalOrders": {
             "get": {
                 "tags": [
                     "Orders"
                 ],
                 "summary": "Obtener el total de órdenes",
                 "description": "Devuelve el número total de órdenes registradas.",
-                "operationId": "1d8dfeef8b7c06557e2cac9e8efea42f",
+                "operationId": "4587c7abc711c1fbb713fd2266673ae9",
                 "responses": {
                     "200": {
                         "description": "Total de órdenes",
@@ -739,6 +713,108 @@
                                         "total": {
                                             "type": "integer",
                                             "example": 100
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/orders/statusSummary": {
+            "get": {
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Resumen de pedidos completados vs. pendientes",
+                "description": "Devuelve el número de pedidos con estado 'Completado' y 'Pendiente'.",
+                "operationId": "ad3be99a9707aed568ada0582a99fb13",
+                "responses": {
+                    "200": {
+                        "description": "Resumen de estados",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "completados": {
+                                            "type": "integer",
+                                            "example": 50
+                                        },
+                                        "pendientes": {
+                                            "type": "integer",
+                                            "example": 30
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/orders/groupedCount": {
+            "get": {
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Conteo de pedidos por día, mes y año",
+                "description": "Devuelve el número de pedidos creados agrupados por día, mes y año.",
+                "operationId": "51020470642fe204d73ff1ce33084b05",
+                "responses": {
+                    "200": {
+                        "description": "Conteo agrupado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "por_dia": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "fecha": {
+                                                        "type": "string",
+                                                        "format": "date"
+                                                    },
+                                                    "total": {
+                                                        "type": "integer"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "por_mes": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "anio": {
+                                                        "type": "integer"
+                                                    },
+                                                    "mes": {
+                                                        "type": "integer"
+                                                    },
+                                                    "total": {
+                                                        "type": "integer"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "por_anio": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "anio": {
+                                                        "type": "integer"
+                                                    },
+                                                    "total": {
+                                                        "type": "integer"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
                                         }
                                     },
                                     "type": "object"

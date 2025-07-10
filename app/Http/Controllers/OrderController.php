@@ -417,7 +417,7 @@ class OrderController extends Controller
      * Obtener el total de órdenes.
      *
      * @OA\Get(
-     *     path="/api/orders/total",
+     *     path="/api/orders/getTotalOrders",
      *     summary="Obtener el total de órdenes",
      *     description="Devuelve el número total de órdenes registradas.",
      *     tags={"Orders"},
@@ -436,5 +436,85 @@ class OrderController extends Controller
         return response()->json(['total' =>  $total], 200);
     }
 
+    /**
+     * Obtener el conteo de pedidos completados vs. pendientes.
+     *
+     * @OA\Get(
+     *     path="/api/orders/statusSummary",
+     *     summary="Resumen de pedidos completados vs. pendientes",
+     *     description="Devuelve el número de pedidos con estado 'Completado' y 'Pendiente'.",
+     *     tags={"Orders"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Resumen de estados",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="completados", type="integer", example=50),
+     *             @OA\Property(property="pendientes", type="integer", example=30)
+     *         )
+     *     )
+     * )
+     */
+    public function statusSummary()
+    {
+        $completados = Order::where('status', 'Completado')->count();
+        $pendientes = Order::where('status', 'Pendiente')->count();
 
+        return response()->json([
+            'completados' => $completados,
+            'pendientes' => $pendientes
+        ], 200);
+    }
+    /**
+     * Obtener el conteo de pedidos agrupados por día, mes y año.
+     *
+     * @OA\Get(
+     *     path="/api/orders/groupedCount",
+     *     summary="Conteo de pedidos por día, mes y año",
+     *     description="Devuelve el número de pedidos creados agrupados por día, mes y año.",
+     *     tags={"Orders"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Conteo agrupado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="por_dia", type="array", @OA\Items(
+     *                 @OA\Property(property="fecha", type="string", format="date"),
+     *                 @OA\Property(property="total", type="integer")
+     *             )),
+     *             @OA\Property(property="por_mes", type="array", @OA\Items(
+     *                 @OA\Property(property="anio", type="integer"),
+     *                 @OA\Property(property="mes", type="integer"),
+     *                 @OA\Property(property="total", type="integer")
+     *             )),
+     *             @OA\Property(property="por_anio", type="array", @OA\Items(
+     *                 @OA\Property(property="anio", type="integer"),
+     *                 @OA\Property(property="total", type="integer")
+     *             ))
+     *         )
+     *     )
+     * )
+     */
+    public function groupedCount()
+    {
+        $porDia = Order::selectRaw('date as fecha, COUNT(*) as total')
+            ->groupByRaw('date')
+            ->orderBy('fecha', 'asc')
+            ->get();
+
+        $porMes = Order::selectRaw('YEAR(date) as anio, MONTH(date) as mes, COUNT(*) as total')
+            ->groupByRaw('YEAR(date), MONTH(date)')
+            ->orderBy('anio', 'asc')
+            ->orderBy('mes', 'asc')
+            ->get();
+
+        $porAnio = Order::selectRaw('YEAR(date) as anio, COUNT(*) as total')
+            ->groupByRaw('YEAR(date)')
+            ->orderBy('anio', 'asc')
+            ->get();
+
+        return response()->json([
+            'por_dia' => $porDia,
+            'por_mes' => $porMes,
+            'por_anio' => $porAnio
+        ]);
+    }
 }
