@@ -6,7 +6,6 @@ use App\Models\Customer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
-use function Psy\debug;
 
 class CustomerController extends Controller
 {

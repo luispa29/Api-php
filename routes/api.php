@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\OrderController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -20,3 +21,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::resource('customers',CustomerController::class);
+Route::resource('orders',OrderController::class);
+Route::put('/orders/updateStatus/{id}', [OrderController::class, 'updateStatus']);
