@@ -4,8 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Models\Customer;
 use App\Models\Order;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+
+/**
+ * @OA\SecurityScheme(
+ *     securityScheme="bearerAuth",
+ *     type="http",
+ *     scheme="bearer",
+ *     bearerFormat="JWT"
+ * )
+ */
 
 class OrderController extends Controller
 {
@@ -21,6 +31,7 @@ class OrderController extends Controller
      *     description="Retorna una lista de órdenes con filtros opcionales por estado, rango de fechas y cliente.",
      *     operationId="getOrders",
      *     tags={"Orders"},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="status",
      *         in="query",
@@ -81,13 +92,15 @@ class OrderController extends Controller
     public function index(Request $request)
     {
         $query = Order::select(
-                'orders.id as Id',
-                'orders.name as Name',
-                'orders.description as Description',
-                'orders.status as Status',
-                'orders.date as Date',
-                'customers.name as Customer'
-            )
+            'orders.id as Id',
+            'orders.name as Name',
+            'orders.description as Description',
+            'orders.status as Status',
+            'orders.date as Date',
+            'orders.price as Price',
+            'orders.weight as Weight',
+            'customers.name as Customer'
+        )
             ->join('customers', 'orders.customer_id', '=', 'customers.id');
 
         if ($request->filled('status')) {
@@ -95,7 +108,10 @@ class OrderController extends Controller
         }
 
         if ($request->filled('dateFrom') && $request->filled('dateTo')) {
-            $query->whereBetween('orders.date', [$request->dateFrom, $request->dateTo]);
+            $dateFrom = Carbon::parse($request->dateFrom)->startOfDay(); // 00:00:00
+            $dateTo = Carbon::parse($request->dateTo)->endOfDay();       // 23:59:59
+
+            $query->whereBetween('orders.created_at', [$dateFrom, $dateTo]);
         }
 
         if ($request->filled('customer')) {
@@ -104,7 +120,73 @@ class OrderController extends Controller
 
         $orders = $query->paginate($request->input('per_page', 10));
 
-        return response()->json($orders);
+        return response()->json([
+            'status' => true,
+            'current_page' => $orders->currentPage(),
+            'data' => $orders->items(),
+            'last_page' => $orders->lastPage(),
+            'per_page' => $orders->perPage(),
+            'total' => $orders->total()
+        ])->setStatusCode(200, 'OK', [
+            'Content-Type' => 'application/json'
+        ]);
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/orders/getFilters",
+     *     summary="Obtener filtros únicos de estado y clientes",
+     *     description="Devuelve una lista de estados únicos de las órdenes y una lista de clientes únicos relacionados con las órdenes.",
+     *     operationId="getSFilters",
+     *     tags={"Orders"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Filtros obtenidos correctamente",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="boolean", example=true),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 @OA\Property(
+     *                     property="status",
+     *                     type="array",
+     *                     @OA\Items(
+     *                         type="object",
+     *                         @OA\Property(property="status", type="string", example="Pending")
+     *                     )
+     *                 ),
+     *                 @OA\Property(
+     *                     property="customers",
+     *                     type="array",
+     *                     @OA\Items(
+     *                         type="object",
+     *                         @OA\Property(property="Customer", type="string", example="Juan Pérez")
+     *                     )
+     *                 )
+     *             )
+     *         )
+     *     )
+     * )
+     */
+    public function getFilters()
+    {
+        $status = Order::select('status')->distinct()->get();
+
+        $customers = Order::select(
+            'customers.name as Customer',
+            'customers.id as Id',
+        )
+            ->join('customers', 'orders.customer_id', '=', 'customers.id')
+            ->distinct()
+            ->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => [
+                'status' => $status,
+                'customers' => $customers
+            ]
+        ], 200);
     }
 
     /**
@@ -178,7 +260,7 @@ class OrderController extends Controller
         ], 201);
     }
 
-     public function show(Order $order)
+    public function show(Order $order)
     {
         return response()->json([
             'status' => true,
@@ -237,7 +319,7 @@ class OrderController extends Controller
      *     )
      * )
      */
-     public function update(Request $request, int $id)
+    public function update(Request $request, int $id)
     {
         $rules = [
             'name' => 'required|string|min:1',
@@ -342,7 +424,7 @@ class OrderController extends Controller
      * @return \Illuminate\Http\Response
      */
 
-     /**
+    /**
      * @OA\Put(
      *     path="/api/orders/updateStatus/{id}",
      *     summary="Actualizar el estado de un pedido",
@@ -465,56 +547,53 @@ class OrderController extends Controller
         ], 200);
     }
     /**
-     * Obtener el conteo de pedidos agrupados por día, mes y año.
-     *
      * @OA\Get(
-     *     path="/api/orders/groupedCount",
-     *     summary="Conteo de pedidos por día, mes y año",
-     *     description="Devuelve el número de pedidos creados agrupados por día, mes y año.",
+     *     path="/api/orders/dashboard",
+     *     summary="Obtener estadísticas generales del dashboard",
+     *     description="Retorna el total de pedidos, pedidos completados, pendientes, cantidad total de clientes y actividad diaria de los últimos 30 días.",
+     *     operationId="dashboard",
      *     tags={"Orders"},
+     *     security={{"bearerAuth":{}}},
      *     @OA\Response(
      *         response=200,
-     *         description="Conteo agrupado",
+     *         description="Estadísticas obtenidas correctamente",
      *         @OA\JsonContent(
-     *             @OA\Property(property="por_dia", type="array", @OA\Items(
-     *                 @OA\Property(property="fecha", type="string", format="date"),
-     *                 @OA\Property(property="total", type="integer")
-     *             )),
-     *             @OA\Property(property="por_mes", type="array", @OA\Items(
-     *                 @OA\Property(property="anio", type="integer"),
-     *                 @OA\Property(property="mes", type="integer"),
-     *                 @OA\Property(property="total", type="integer")
-     *             )),
-     *             @OA\Property(property="por_anio", type="array", @OA\Items(
-     *                 @OA\Property(property="anio", type="integer"),
-     *                 @OA\Property(property="total", type="integer")
-     *             ))
+     *             @OA\Property(property="totalOrders", type="integer", example=150),
+     *             @OA\Property(property="complete", type="integer", example=90),
+     *             @OA\Property(property="earring", type="integer", example=60),
+     *             @OA\Property(property="activeCustomers", type="integer", example=300),
+     *             @OA\Property(
+     *                 property="actividad",
+     *                 type="array",
+     *                 @OA\Items(
+     *                     type="object",
+     *                     @OA\Property(property="date", type="string", format="date", example="2025-07-10"),
+     *                     @OA\Property(property="total", type="integer", example=8)
+     *                 )
+     *             )
      *         )
      *     )
      * )
      */
-    public function groupedCount()
+    public function dashboard()
     {
-        $porDia = Order::selectRaw('date as fecha, COUNT(*) as total')
-            ->groupByRaw('date')
-            ->orderBy('fecha', 'asc')
-            ->get();
+        $totalOrders = Order::count();
+        $complete = Order::where('status', 'completado')->count();
+        $earring = Order::where('status', 'pendiente')->count();
+        $activeCustomers = Customer::count();
 
-        $porMes = Order::selectRaw('YEAR(date) as anio, MONTH(date) as mes, COUNT(*) as total')
-            ->groupByRaw('YEAR(date), MONTH(date)')
-            ->orderBy('anio', 'asc')
-            ->orderBy('mes', 'asc')
-            ->get();
-
-        $porAnio = Order::selectRaw('YEAR(date) as anio, COUNT(*) as total')
-            ->groupByRaw('YEAR(date)')
-            ->orderBy('anio', 'asc')
+        $activity = Order::selectRaw("FORMAT(CAST(created_at AS DATE), 'dd/MM/yyyy') AS date,COUNT(*) AS total")
+            ->groupByRaw("CAST(created_at AS DATE)")
+            ->orderByRaw("CAST(created_at AS DATE) ASC")
             ->get();
 
         return response()->json([
-            'por_dia' => $porDia,
-            'por_mes' => $porMes,
-            'por_anio' => $porAnio
+            'status' => true,
+            'totalOrders' => $totalOrders,
+            'complete' => $complete,
+            'earring' => $earring,
+            'activeCustomers' => $activeCustomers,
+            'activity' => $activity
         ]);
     }
 }

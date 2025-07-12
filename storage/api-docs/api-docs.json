@@ -332,7 +332,12 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             },
             "post": {
                 "tags": [
@@ -424,6 +429,63 @@
                                             "items": {
                                                 "type": "string"
                                             }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/orders/getFilters": {
+            "get": {
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Obtener filtros únicos de estado y clientes",
+                "description": "Devuelve una lista de estados únicos de las órdenes y una lista de clientes únicos relacionados con las órdenes.",
+                "operationId": "getSFilters",
+                "responses": {
+                    "200": {
+                        "description": "Filtros obtenidos correctamente",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "status": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "status": {
+                                                                "type": "string",
+                                                                "example": "Pending"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "customers": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "Customer": {
+                                                                "type": "string",
+                                                                "example": "Juan Pérez"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
                                         }
                                     },
                                     "type": "object"
@@ -755,62 +817,49 @@
                 }
             }
         },
-        "/api/orders/groupedCount": {
+        "/api/orders/dashboard": {
             "get": {
                 "tags": [
                     "Orders"
                 ],
-                "summary": "Conteo de pedidos por día, mes y año",
-                "description": "Devuelve el número de pedidos creados agrupados por día, mes y año.",
-                "operationId": "51020470642fe204d73ff1ce33084b05",
+                "summary": "Obtener estadísticas generales del dashboard",
+                "description": "Retorna el total de pedidos, pedidos completados, pendientes, cantidad total de clientes y actividad diaria de los últimos 30 días.",
+                "operationId": "dashboard",
                 "responses": {
                     "200": {
-                        "description": "Conteo agrupado",
+                        "description": "Estadísticas obtenidas correctamente",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "properties": {
-                                        "por_dia": {
+                                        "totalOrders": {
+                                            "type": "integer",
+                                            "example": 150
+                                        },
+                                        "complete": {
+                                            "type": "integer",
+                                            "example": 90
+                                        },
+                                        "earring": {
+                                            "type": "integer",
+                                            "example": 60
+                                        },
+                                        "activeCustomers": {
+                                            "type": "integer",
+                                            "example": 300
+                                        },
+                                        "actividad": {
                                             "type": "array",
                                             "items": {
                                                 "properties": {
-                                                    "fecha": {
+                                                    "date": {
                                                         "type": "string",
-                                                        "format": "date"
+                                                        "format": "date",
+                                                        "example": "2025-07-10"
                                                     },
                                                     "total": {
-                                                        "type": "integer"
-                                                    }
-                                                },
-                                                "type": "object"
-                                            }
-                                        },
-                                        "por_mes": {
-                                            "type": "array",
-                                            "items": {
-                                                "properties": {
-                                                    "anio": {
-                                                        "type": "integer"
-                                                    },
-                                                    "mes": {
-                                                        "type": "integer"
-                                                    },
-                                                    "total": {
-                                                        "type": "integer"
-                                                    }
-                                                },
-                                                "type": "object"
-                                            }
-                                        },
-                                        "por_anio": {
-                                            "type": "array",
-                                            "items": {
-                                                "properties": {
-                                                    "anio": {
-                                                        "type": "integer"
-                                                    },
-                                                    "total": {
-                                                        "type": "integer"
+                                                        "type": "integer",
+                                                        "example": 8
                                                     }
                                                 },
                                                 "type": "object"
@@ -822,7 +871,21 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
             }
         }
     },

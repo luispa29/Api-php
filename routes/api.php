@@ -19,26 +19,28 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+    Route::get('/orders/dashboard', [OrderController::class, 'dashboard']);
 
 Route::middleware('jwt.auth')->group(function () {
     Route::get('/customers/', [CustomerController::class, 'index']);
+    Route::post('/customers/', [CustomerController::class, 'store']);
+    Route::put('/customers/{id}', [CustomerController::class, 'update']);
+    Route::delete('/customers/{id}', [CustomerController::class, 'destroy']);
+
+
+
+    Route::get('/orders/', [OrderController::class, 'index']);
+    Route::get('/orders/getTotalOrders', [OrderController::class, 'getTotalOrders']);
+    Route::get('/orders/statusSummary', [OrderController::class, 'statusSummary']);
+    Route::get('/orders/groupedCount', [OrderController::class, 'groupedCount']);
+    Route::get('/orders/getFilters', [OrderController::class, 'getFilters']);
+
+    Route::post('/orders/', [OrderController::class, 'store']);
+    Route::put('/orders/{id}', [OrderController::class, 'update']);
+    Route::put('/orders/updateStatus/{id}', [OrderController::class, 'updateStatus']);
+
+    Route::delete('/orders/{id}', [OrderController::class, 'destroy']);
 });
 
-Route::post('/customers/', [CustomerController::class, 'store']);
-Route::put('/customers/{id}', [CustomerController::class, 'update']);
-Route::delete('/customers/{id}', [CustomerController::class, 'destroy']);
-
-
-
-Route::get('/orders/', [OrderController::class, 'index']);
-Route::get('/orders/getTotalOrders', [OrderController::class, 'getTotalOrders']);
-Route::get('/orders/statusSummary', [OrderController::class, 'statusSummary']);
-Route::get('/orders/groupedCount', [OrderController::class, 'groupedCount']);
-
-Route::post('/orders/', [OrderController::class, 'store']);
-Route::put('/orders/{id}', [OrderController::class, 'update']);
-Route::put('/orders/updateStatus/{id}', [OrderController::class, 'updateStatus']);
-
-Route::delete('/orders/{id}', [OrderController::class, 'destroy']);
 
 
