@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('status');
-            $table->date('date');
+            $table->dateTime('date');
             $table->text('description');
             $table->decimal('price');
             $table->decimal('weight');

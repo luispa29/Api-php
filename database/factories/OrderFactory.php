@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -16,10 +17,15 @@ class OrderFactory extends Factory
      */
     public function definition()
     {
+        $startDate = Carbon::create(2025, 7, 1, 0, 0, 0);
+$endDate = Carbon::now(); // Hoy
+
+$randomDate = Carbon::createFromTimestamp(mt_rand($startDate->timestamp, $endDate->timestamp));
+
         return [
             'name'=> $this->faker->title,
-            'status'=> 'Pendientes',
-            'date'=> $this-> faker->dateTimeBetween('-1 year', 'now'),
+            'status'=> 'Pendiente',
+            'date'=> $randomDate,
             'description'=> $this->faker->sentence,
             'price'=> $this->faker->randomFloat(2, 10, 100),
             'weight'=> $this->faker->randomFloat(2, 1, 10),

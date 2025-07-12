@@ -111,7 +111,7 @@ class OrderController extends Controller
             $dateFrom = Carbon::parse($request->dateFrom)->startOfDay(); // 00:00:00
             $dateTo = Carbon::parse($request->dateTo)->endOfDay();       // 23:59:59
 
-            $query->whereBetween('orders.created_at', [$dateFrom, $dateTo]);
+            $query->whereBetween('orders.date', [$dateFrom, $dateTo]);
         }
 
         if ($request->filled('customer')) {
@@ -531,9 +531,9 @@ class OrderController extends Controller
         $earring = Order::where('status', 'pendiente')->count();
         $activeCustomers = Customer::count();
 
-        $activity = Order::selectRaw("FORMAT(CAST(created_at AS DATE), 'dd/MM/yyyy') AS date,COUNT(*) AS total")
-            ->groupByRaw("CAST(created_at AS DATE)")
-            ->orderByRaw("CAST(created_at AS DATE) ASC")
+        $activity = Order::selectRaw("FORMAT(CAST(date AS DATE), 'dd/MM/yyyy') AS date,COUNT(*) AS total")
+            ->groupByRaw("CAST(date AS DATE)")
+            ->orderByRaw("CAST(date AS DATE) ASC")
             ->get();
 
         return response()->json([
