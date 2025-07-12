@@ -496,57 +496,6 @@ class OrderController extends Controller
     }
 
     /**
-     * Obtener el total de órdenes.
-     *
-     * @OA\Get(
-     *     path="/api/orders/getTotalOrders",
-     *     summary="Obtener el total de órdenes",
-     *     description="Devuelve el número total de órdenes registradas.",
-     *     tags={"Orders"},
-     *     @OA\Response(
-     *         response=200,
-     *         description="Total de órdenes",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="total", type="integer", example=100)
-     *         )
-     *     )
-     * )
-     */
-    public function getTotalOrders()
-    {
-        $total = Order::count();
-        return response()->json(['total' =>  $total], 200);
-    }
-
-    /**
-     * Obtener el conteo de pedidos completados vs. pendientes.
-     *
-     * @OA\Get(
-     *     path="/api/orders/statusSummary",
-     *     summary="Resumen de pedidos completados vs. pendientes",
-     *     description="Devuelve el número de pedidos con estado 'Completado' y 'Pendiente'.",
-     *     tags={"Orders"},
-     *     @OA\Response(
-     *         response=200,
-     *         description="Resumen de estados",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="completados", type="integer", example=50),
-     *             @OA\Property(property="pendientes", type="integer", example=30)
-     *         )
-     *     )
-     * )
-     */
-    public function statusSummary()
-    {
-        $completados = Order::where('status', 'Completado')->count();
-        $pendientes = Order::where('status', 'Pendiente')->count();
-
-        return response()->json([
-            'completados' => $completados,
-            'pendientes' => $pendientes
-        ], 200);
-    }
-    /**
      * @OA\Get(
      *     path="/api/orders/dashboard",
      *     summary="Obtener estadísticas generales del dashboard",
