@@ -21,7 +21,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
     Route::get('/orders/dashboard', [OrderController::class, 'dashboard']);
 
-// Route::middleware('jwt.auth')->group(function () {
+ Route::middleware('jwt.auth')->group(function () {
     Route::get('/customers/', [CustomerController::class, 'index']);
     Route::post('/customers/', [CustomerController::class, 'store']);
     Route::put('/customers/{id}', [CustomerController::class, 'update']);
@@ -40,7 +40,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     Route::put('/orders/updateStatus/{id}', [OrderController::class, 'updateStatus']);
 
     Route::delete('/orders/{id}', [OrderController::class, 'destroy']);
-// });
+});
 
 
 
