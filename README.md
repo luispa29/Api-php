@@ -15,7 +15,7 @@ Antes de comenzar, asegúrate de tener instalado lo siguiente:
    - docker pull mcr.microsoft.com/mssql/server:2022-latest
    - docker run -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=Admin123@" \
    -p 1433:1433 --name test --hostname test \
-2. Ingrear a la base de datos y ejecutar el comando:
+2. Ingresar a la base de datos y ejecutar el comando:
       - Create database TecnicaTT
 
 ## Instalación
